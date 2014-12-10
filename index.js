@@ -90,6 +90,19 @@ Q.fbind = function(callback) {
     };
 };
 
+// Node interop
+Q.nfcall = function(callback) {
+    var args = [].slice.call(arguments, 1);
+    var d = Q.defer();
+    var resolver = makeNodeResolver(d);
+    Q.fcall.apply(void 0, [callback].concat(args).concat(resolver)).fail(d.reject);
+    return d.promise;
+};
+
+Q.denodeify = function(callback) {
+    return Q.nfcall.bind(void 0, callback);
+}
+
 Q.async = B.coroutine;
 Q.spawn = B.spawn;
 Q.cast = B.cast;
@@ -279,6 +292,18 @@ Bproto.mcall = Bproto.send;
 Bproto.passByCopy = function(v) {
     return v;
 };
+
+function makeNodeResolver(deferred) {
+    return function (error, value) {
+        if (error) {
+            deferred.reject(error);
+        } else if (arguments.length > 2) {
+            deferred.resolve([].slice.call(arguments, 1));
+        } else {
+            deferred.resolve(value);
+        }
+    };
+}
 
 var NQ = {};
 
