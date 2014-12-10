@@ -37,7 +37,7 @@ Q.defer = function() {
     b.notify = bind(b.progress, b);
     return b;
 };
-Q.all = B.All;
+Q.all = B.all;
 Q.allSettled = B.allSettled;
 Bproto.allSettled = Bproto.all;
 
