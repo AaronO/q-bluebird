@@ -99,6 +99,16 @@ Q.nfcall = function(callback) {
     return d.promise;
 };
 
+Q.nbind = function() {
+    return B.promisify.apply(B, [].slice.call(arguments));
+};
+
+Q.ninvoke = function(object, method /* ... args */) {
+    var m = object[method];
+    var fn = m.bind.apply(m, [object].concat([].slice.call(arguments, 2)));
+    return B.fromNode(fn);
+};
+
 Q.denodeify = function(callback) {
     return Q.nfcall.bind(void 0, callback);
 }
@@ -168,15 +178,6 @@ Bproto.keys = function() {
     return this.then(function(val) {
         return Object.keys(val);
     });
-};
-
-Bproto.timeout = function(ms, message) {
-    var self = this;
-    setTimeout(function() {
-        var e = new Error(message || "Timed out after " + ms + " ms");
-        self.reject(e);
-    }, ms);
-    return this.then();
 };
 
 function delay(ms, val) {
